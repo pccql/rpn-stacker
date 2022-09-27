@@ -1,43 +1,82 @@
+import utils.Token;
+import utils.TokenType;
+
+
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
 
 class RPNStacker {
-  public static int calculate(char operator, Integer a, Integer b) {
-    if (operator == '+') {
+  public static int calculate(Token token, Integer a, Integer b) {
+    if (token.type == TokenType.PLUS) {
       return a + b;
-    } else if (operator == '-') {
+    } else if (token.type == TokenType.MINUS) {
       return a - b;
-    } else if (operator == '*') {
+    } else if (token.type == TokenType.STAR) {
       return a * b;
     } else {
       return a / b;
     }
   }
 
-  public static int postfixRPN(String data) {
-    char[] elements = data.toCharArray();
+  public static TokenType toTokenType(String value) throws Exception {
+    try {
+      Integer.parseInt(value);
+      return TokenType.NUM;
+    } catch (NumberFormatException e) {
+      if (value.equals("+")) {
+        return TokenType.PLUS;
+      } else if (value.equals("-")) {
+        return TokenType.MINUS;
+      } else if (value.equals("*")) {
+        return TokenType.STAR;
+      } else if (value.equals("/")) {
+        return TokenType.SLASH;
+      } else {
+        throw new Exception("Valor não reconhecido (não é [num] e não é [op])");
+      }
+    }
+  }
 
+  public static int postfixRPN(List<Token> tokens) {
     ArrayList<Integer> stack = new ArrayList<Integer>();
 
-    for (int i = 0; i < elements.length; i++) {
-      char elem = elements[i];
+    for (int i = 0; i < tokens.size(); i++) {
+      Token token = tokens.get(i);
 
-      if (Character.isDigit(elem) == true) {
-        stack.add(Character.getNumericValue(elem));
-      } else {
-        char operator = elem;
+      try {
+        Integer number = Integer.parseInt(token.lexeme);
+        stack.add(number);
+      } catch (NumberFormatException e) {
         Integer size = stack.size();
         Integer a = stack.get(size - 2);
         Integer b = stack.get(size - 1);
         stack.remove(size - 1);
         stack.remove(size - 2);
-        stack.add(calculate(operator, a, b));
+        stack.add(calculate(token, a, b));
       }
     }
     return stack.get(0);
   }
 
   public static void main(String[] args) {
-    String expression = "23*54*+9-";
-    System.out.println(postfixRPN(expression));
+    try {
+      List<Token> tokens = new ArrayList<Token>();
+      BufferedReader bf = new BufferedReader(new FileReader("./utils/Calc.stk"));
+      String line = bf.readLine();
+
+      while (line != null) {
+        Token token = new Token(toTokenType(line), line);
+        tokens.add(token);
+        line = bf.readLine();
+      }
+      bf.close();
+
+      System.out.println(postfixRPN(tokens));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 }
