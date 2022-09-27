@@ -1,11 +1,9 @@
 import utils.Token;
 import utils.TokenType;
 
-
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.List;
 
 class RPNStacker {
@@ -35,7 +33,7 @@ class RPNStacker {
       } else if (value.equals("/")) {
         return TokenType.SLASH;
       } else {
-        throw new Exception("Valor não reconhecido (não é [num] e não é [op])");
+        throw new Exception("Error: Unexpected character: " + value);
       }
     }
   }
