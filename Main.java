@@ -1,5 +1,6 @@
 import utils.Token;
 import utils.TokenType;
+import utils.Regex;
 
 import java.util.ArrayList;
 import java.io.BufferedReader;
@@ -20,22 +21,20 @@ class RPNStacker {
   }
 
   public static TokenType toTokenType(String value) throws Exception {
-    try {
-      Integer.parseInt(value);
+    if (Regex.isNum(value)) {
       return TokenType.NUM;
-    } catch (NumberFormatException e) {
-      if (value.equals("+")) {
+    } else if (Regex.isOp(value)) {
+      if (Regex.isPlus(value)) {
         return TokenType.PLUS;
-      } else if (value.equals("-")) {
+      } else if (Regex.isMinus(value)) {
         return TokenType.MINUS;
-      } else if (value.equals("*")) {
+      } else if (Regex.isStar(value)) {
         return TokenType.STAR;
-      } else if (value.equals("/")) {
+      } else if (Regex.isSlash(value)) {
         return TokenType.SLASH;
-      } else {
-        throw new Exception("Error: Unexpected character: " + value);
       }
     }
+    throw new Exception("Error: Unexpected character: " + value);
   }
 
   public static int postfixRPN(List<Token> tokens) {
@@ -72,6 +71,7 @@ class RPNStacker {
       }
       bf.close();
 
+      System.out.println(tokens);
       System.out.println(postfixRPN(tokens));
     } catch (Exception e) {
       e.printStackTrace();
